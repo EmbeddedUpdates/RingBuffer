@@ -22,6 +22,7 @@
 #include "unity.h"
 #include <setjmp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "RingBuffer.h"
 #include "RingBuffer_Test.h"
 
@@ -44,7 +45,21 @@ int main(void)
 {
   UnityBegin("test/ProtoBuf.c");
 
-  /* Init tests */
+  uint8 * mempool = malloc(RINGBUFFER_MEMPOOL_SIZE);
+  mempool_start = mempool;
+  printf("Address of mempool: %p\n", (void*)RINGBUFFER_MEMPOOL_STARTADDR);
+  printf("Length of mempool: %p\n", (void*)RINGBUFFER_MEMPOOL_SIZE);
+
+  /* Tests for Create() */
+  RUN_TEST(test_RingBuffer_Create_ReturnsOK, 54);
+  RUN_TEST(test_RingBuffer_Create_AllocatedSpaceIsEmpty, 55);
+  RUN_TEST(test_RingBuffer_Create_CorrectCapacityForElemSizeOne, 56);
+  RUN_TEST(test_RingBuffer_Create_CorrectCapacityForElemSizeFour, 57);
+  RUN_TEST(test_RingBuffer_Create_ZeroElemSizeShouldFail, 58);
+  RUN_TEST(test_RingBuffer_Create_ThreeElemSizeShouldFail, 59);
+  RUN_TEST(test_RingBuffer_Create_HugeElemSizeShouldFail, 60);
+
+
 
   return (UnityEnd());
 }

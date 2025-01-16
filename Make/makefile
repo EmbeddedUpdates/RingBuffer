@@ -77,7 +77,7 @@ all: test
 
 test: $(SRC_FILES1)
 	mkdir -p $(ROOT_DIR)/Test/exe
-	$(CC) $(CCFLAGS) $(INC) $(C_SOURCE_FILES) -o $(TEST_EXE)
+	$(CC) $(CCFLAGS) $(INC) $(C_SOURCE_FILES) -o $(TEST_EXE) -DVIRTUAL_TARGET
 	- ./$(TEST_EXE)
 
 clean :
