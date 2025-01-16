@@ -1,0 +1,17 @@
+## Unity Test Framework
+# define unit specific testing files here which will be compiled and executed first.
+# These tests should be executed each build and only if they pass should the rest of build continue.
+
+# we want to output the results of the test run to a file - if it passed, we can make a file:
+# TIMER_RP2040_TEST.passed
+# TIMER_RP2040_TEST.failed
+# Then this file is used as a target of the overall build. If that file doesnt exist, we continue with
+# tests but will fail for the overall app compilation.
+
+# is there value for making a makefile for single module testing? Yes. Should we do that first? Yes.
+
+
+#This file defines the test executable that must be run.
+
+TEST_RUNNER=$(ROOT_DIR)/Test/$(MODULE_NAME)_TestRunner.c
+TESTS_FILE=$(ROOT_DIR)/Test/$(MODULE_NAME)_Tests.c
