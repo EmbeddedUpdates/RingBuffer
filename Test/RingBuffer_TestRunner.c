@@ -59,7 +59,24 @@ int main(void)
   RUN_TEST(test_RingBuffer_Create_ThreeElemSizeShouldFail, 59);
   RUN_TEST(test_RingBuffer_Create_HugeElemSizeShouldFail, 60);
 
+  /* Tests for Write */
+  RUN_TEST(test_RingBuffer_Write_ReturnsOk, 63);
+  RUN_TEST(test_RingBuffer_Write_ReturnsNotOk_WrongSize, 64);
+  RUN_TEST(test_RingBuffer_Write_ReturnsNotOk_NullPointerToData, 65);
+  RUN_TEST(test_RingBuffer_Write_ReturnsNotOk_NotEnoughSpace_Full, 66);
 
+  /* Tests for Read*/
+  RUN_TEST(test_RingBuffer_Read_ReturnsOk, 69);
+  RUN_TEST(test_RingBuffer_Read_CorrectDataReturned, 70);
+  RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement, 71);
+  RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement, 72);
+  RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_NullPointerToData, 73);
+  RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_NoDataToRead, 74);
+
+  /* Big Test */
+  RUN_TEST(test_RingBuffer_ReadAndWriteLotsOfData, 77);
+  RUN_TEST(test_RingBuffer_FillAndReadAndWriteAgain_OK, 78);
+  RUN_TEST(test_RingBuffer_FillAndReadAndWriteAgain_CorrectData, 79);
 
   return (UnityEnd());
 }

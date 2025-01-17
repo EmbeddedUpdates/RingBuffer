@@ -48,9 +48,13 @@ typedef struct RingBuffer_tag
   uint8 * buffer;
   RINGBUFFER_SIZE_TYPE elementSize; /* size of an element in the ringbuffer */
   RINGBUFFER_SIZE_TYPE capacity; /* maximum number of items in the ringbuffer */
-  RINGBUFFER_SIZE_TYPE size; /* current number of items in the ringbuffer */
+  RINGBUFFER_SIZE_TYPE count; /* current number of items in the ringbuffer */
   RINGBUFFER_SIZE_TYPE head; /* read pointer - "dirty" data that needs to be popped */
   RINGBUFFER_SIZE_TYPE tail; /* write pointer - "clean" data that has been processed and can be overwritten */
+  /* A write or enqueue for adding data to the ringbuffer */
+  Std_ErrorCode (*write) (void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
+  /* A read ir dequeue for removing data from the ringbuffer */
+  Std_ErrorCode (*read) (void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
 } RingBuffer;
 
 
