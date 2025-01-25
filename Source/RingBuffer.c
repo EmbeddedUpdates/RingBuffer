@@ -36,10 +36,18 @@
 /************************************************************
   LOCAL VARIABLES
 ************************************************************/
+<<<<<<< HEAD
 /************************************************************
   LOCAL FUNCTIONS
 ************************************************************/
 static void RingBuffer_ClearMemPool(void)
+=======
+
+/************************************************************
+  LOCAL FUNCTIONS
+************************************************************/
+static void RingBuffer_MemPool_ClearAll(void)
+>>>>>>> c06be56 (trunk commit before refactor for mempool changes)
 {
   uint8 * addr;
   /* Clear all of the memory in the RingBuffer memory pool */
@@ -51,6 +59,26 @@ static void RingBuffer_ClearMemPool(void)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * RingBuffer_MemPool_Allocate()
+ * 
+ * Reserve and allocate space from the memorypool that can fit the elementSize*numBufferslots in bytes.
+ * 
+ * @param rb (in/out): ringbuffer that will have it's buffer assigned by this function.
+ * @param elementSize (in): size in bytes of the elements that will be stored in the RingBuffer/Mempool
+ * @param numBufferSlots (in): number of elements that will be stored in the RingBuffer
+ * 
+ */
+static Std_ErrorCode RingBuffer_MemPool_Allocate(RingBuffer * rb, RINGBUFFER_SIZE_TYPE elementSize, RINGBUFFER_SIZE_TYPE numBufferSlots)
+{
+  Std_ErrorCode retVal = E_OK;
+  return retVal;
+}
+
+
+/**
+>>>>>>> c06be56 (trunk commit before refactor for mempool changes)
  * RingBuffer_Write()
  * Adds the given data to the given RingBuffer. If the size is too big for the RingBuffer slots, then we will return NOTOK.
  * Static: because it must be called through the RingBuffer itself
@@ -137,6 +165,7 @@ static Std_ErrorCode RingBuffer_Read(void * self, uint8 * dataBuffer, RINGBUFFER
  * 
  * @param self: ringBuffer to store the new data in.
  * @param elementSize: size of the elements that will be placed in the ringbuffer.
+<<<<<<< HEAD
  * 
  */
 Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize)
@@ -144,10 +173,30 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
   Std_ErrorCode retVal = E_OK;
 
   if( NULL == self )
+=======
+ * @param numBufferSlots: number of slots that the buffer must hold at one time.
+ * 
+ */
+Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize, RINGBUFFER_SIZE_TYPE numBufferSlots)
+{
+  Std_ErrorCode retVal = E_OK;
+  (void) numBufferSlots;
+
+  /* Param checks are performed first*/
+  /* 
+    1. Self must not be null
+    2. ElementSize should be a power of 2 (i.e. 1, 2, 4, 8, 16) for memory fit.
+    3. numBufferSlots should not be 0, and should not request more than is allocated by linker
+  */
+  if( ( NULL == self )                                                    || 
+      (elementSize == 0) || (elementSize % 2 != 0 && elementSize != 1)    || 
+      (numBufferSlots == 0 )|| (numBufferSlots > RINGBUFFER_MEMPOOL_SIZE) )
+>>>>>>> c06be56 (trunk commit before refactor for mempool changes)
   {
     retVal = E_NOT_OK;
   }
 
+<<<<<<< HEAD
   /* ElementSize must be a power of two (or 1) (for runtime efficiency when we implement binary search)*/
   if(elementSize % 2 != 0 && elementSize != 1)
   {
@@ -155,6 +204,12 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
   }
   /* elements can not take up only zero space, and fitting less than 2 elements in the buffer is a dumb idea. */
   if(elementSize == 0 || elementSize > RINGBUFFER_MEMPOOL_SIZE/2)
+=======
+  /* We must determine if there is enough space left in the memory pool */
+  /* We should request space from the memory pool */
+  /* elements can not take up only zero space, and fitting less than 2 elements in the buffer is a dumb idea. */
+  if(elementSize > RINGBUFFER_MEMPOOL_SIZE/2)
+>>>>>>> c06be56 (trunk commit before refactor for mempool changes)
   {
     retVal = E_NOT_OK;
   }
@@ -185,7 +240,11 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
   if(E_OK == retVal)
   {
     /* Clear all of the memory in the RingBuffer memory pool */
+<<<<<<< HEAD
     RingBuffer_ClearMemPool();
+=======
+    RingBuffer_MemPool_ClearAll();
+>>>>>>> c06be56 (trunk commit before refactor for mempool changes)
   }
 
   return retVal;

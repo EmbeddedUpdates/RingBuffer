@@ -35,7 +35,11 @@
 /* A mempool is allocated at runtime - for virtual test target */
 #if defined ( VIRTUAL_TARGET )
 #define RINGBUFFER_MEMPOOL_STARTADDR (uint64) mempool_start
+<<<<<<< HEAD
 #define RINGBUFFER_MEMPOOL_SIZE      (uint64) 0x1000
+=======
+#define RINGBUFFER_MEMPOOL_SIZE      (uint64) 0x10
+>>>>>>> c06be56 (trunk commit before refactor for mempool changes)
 #define RINGBUFFER_SIZE_TYPE         uint64
 extern uint8 * mempool_start;
 #endif
@@ -76,5 +80,9 @@ typedef struct RingBuffer_tag
   lot of sense without dynamic allocation. If we split up the memory pool to multiple RingBuffers, 
   then we will want to implement dynamic allocation within the MemoryPool
 */
+<<<<<<< HEAD
 extern Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize);
+=======
+extern Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize, RINGBUFFER_SIZE_TYPE numBufferSlots);
+>>>>>>> c06be56 (trunk commit before refactor for mempool changes)
 #endif /* RINGBUFFER_H */
