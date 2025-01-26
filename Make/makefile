@@ -64,21 +64,36 @@ TESTS_FILE=$(ROOT_DIR)/Test/$(MODULE_NAME)_Tests.c
 SOURCE_FILES=$(ROOT_DIR)/Source/$(MODULE_NAME).c
 C_SOURCE_FILES += $(TEST_RUNNER) $(TESTS_FILE) $(SOURCE_FILES) $(UNITY_ROOT)/src/unity.c
 
-TEST_EXE = $(ROOT_DIR)/Test/exe/$(MODULE_NAME)_Test.out
+TEST_INDEPENDENT_EXE = $(ROOT_DIR)/Test/exe/$(MODULE_NAME)_Test_INDEPENDENT.out
+TEST_MEMPOOL_EXE = $(ROOT_DIR)/Test/exe/$(MODULE_NAME)_Test_MEMPOOL.out
 
 INCLUDE_PATH += ../Include
 INCLUDE_PATH += $(UNITY_ROOT)/src
 INCLUDE_PATH += $(ROOT_DIR)/../BRS_RP2040/include
 
+C_SOURCE_FILES_MEMPOOL = $(C_SOURCE_FILES) $(ROOT_DIR)/../MemPool/Source/MemPool.c
+INCLUDE_PATH_MEMPOOL = $(INCLUDE_PATH) $(ROOT_DIR)/../MemPool/Include
+
 INC += $(addprefix -I, $(INCLUDE_PATH))
+INC_IND = $(INC)
+INC_MEMPOOL = $(INC)
+INC_MEMPOOL += $(addprefix -I, $(INCLUDE_PATH_MEMPOOL))
 
 #default make target
-all: test
+all: test_independent test_mempool
 
-test: $(SRC_FILES1)
+test_independent: $(SRC_FILES1)
 	mkdir -p $(ROOT_DIR)/Test/exe
-	$(CC) $(CCFLAGS) $(INC) $(C_SOURCE_FILES) -o $(TEST_EXE) -DVIRTUAL_TARGET
-	- ./$(TEST_EXE)
+	@echo "\033[1;32mTesting The Indepdendent Build\033[0m"
+	$(CC) $(CCFLAGS) $(INC_IND) $(C_SOURCE_FILES) -o $(TEST_INDEPENDENT_EXE) -DVIRTUAL_TARGET -DRINGBUFFER_USECASE=0
+	- ./$(TEST_INDEPENDENT_EXE)
+
+test_mempool: $(SRC_FILES1)
+	mkdir -p $(ROOT_DIR)/Test/exe
+	@echo "\033[1;32mTesting The MEMPOOL Build\033[0m"
+	$(CC) $(CCFLAGS) $(INC_MEMPOOL) $(C_SOURCE_FILES_MEMPOOL) -o $(TEST_MEMPOOL_EXE) -DVIRTUAL_TARGET -DRINGBUFFER_USECASE=1
+	- ./$(TEST_MEMPOOL_EXE)
+
 
 clean :
 	@rm -f *.o $(PROJECT_NAME).elf $(PROJECT_NAME).list $(PROJECT_NAME).bin $(PROJECT_NAME).uf2 $(PROJECT_NAME).map 
