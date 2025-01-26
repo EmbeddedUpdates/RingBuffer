@@ -39,19 +39,19 @@ void resetTest(void)
   setUp();
 }
 
-
 /*=======MAIN=====*/
 int main(void)
 {
   UnityBegin("test/ProtoBuf.c");
 
-  uint8 * mempool = malloc(RINGBUFFER_MEMPOOL_SIZE);
-  mempool_start = mempool;
-  printf("Address of mempool: %p\n", (void*)RINGBUFFER_MEMPOOL_STARTADDR);
-  printf("Length of mempool: %p\n", (void*)RINGBUFFER_MEMPOOL_SIZE);
+  uint8 * mempool = aligned_alloc(RINGBUFFER_SIZE, RINGBUFFER_SIZE);
+  ringbuffer_start = mempool;
+  printf("Address of mempool: %p\n", (void*)RINGBUFFER_STARTADDR);
+  printf("Length of mempool: %p\n", (void*)RINGBUFFER_SIZE);
 
   /* Tests for Create() */
   RUN_TEST(test_RingBuffer_Create_ReturnsOK, 54);
+  printf("%p\n", ringbuffer_start);
   RUN_TEST(test_RingBuffer_Create_AllocatedSpaceIsEmpty, 55);
   RUN_TEST(test_RingBuffer_Create_CorrectCapacityForElemSizeOne, 56);
   RUN_TEST(test_RingBuffer_Create_CorrectCapacityForElemSizeFour, 57);
@@ -69,11 +69,7 @@ int main(void)
   RUN_TEST(test_RingBuffer_Read_ReturnsOk, 69);
   RUN_TEST(test_RingBuffer_Read_CorrectDataReturned, 70);
   RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement, 71);
-<<<<<<< HEAD
-  RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement, 72);
-=======
-  // RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement, 72);
->>>>>>> c06be56 (trunk commit before refactor for mempool changes)
+  /*RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement, 72);*/
   RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_NullPointerToData, 73);
   RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_NoDataToRead, 74);
 

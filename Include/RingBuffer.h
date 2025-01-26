@@ -24,6 +24,20 @@
 #include "Platform_Types.h"
 
 /************************************************************
+  CONFIGURATION CHECKS
+************************************************************/
+#define RINGBUFFER_USECASE_INDEPENDENT 0
+#define RINGBUFFER_USECASE_MEMPOOL 1
+
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
+ /* intentionally left blank */
+#elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+ /* intentionally left blank */
+#else 
+  #error "Undefined Usecase - at least one of the memory allocation usecases must be configured!"
+#endif
+
+/************************************************************
   DEFINES
 ************************************************************/
 /* A mempool is reserved for the RINGBUFFER, and is allocated through the linkerscript at compile time */
@@ -34,15 +48,22 @@
 #endif
 /* A mempool is allocated at runtime - for virtual test target */
 #if defined ( VIRTUAL_TARGET )
-#define RINGBUFFER_MEMPOOL_STARTADDR (uint64) mempool_start
-<<<<<<< HEAD
-#define RINGBUFFER_MEMPOOL_SIZE      (uint64) 0x1000
-=======
-#define RINGBUFFER_MEMPOOL_SIZE      (uint64) 0x10
->>>>>>> c06be56 (trunk commit before refactor for mempool changes)
-#define RINGBUFFER_SIZE_TYPE         uint64
-extern uint8 * mempool_start;
-#endif
+
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
+  #define RINGBUFFER_STARTADDR (uint64) ringbuffer_start
+  #define RINGBUFFER_SIZE      (uint64) 0x1000
+  #define RINGBUFFER_SIZE_TYPE         uint64
+  extern uint8 * ringbuffer_start;
+#elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+  #define RINGBUFFER_SIZE_TYPE         uint64
+
+  #define RINGBUFFER_SIZE 0x1
+  #define RINGBUFFER_STARTADDR ringbuffer_start
+  extern uint8 * ringbuffer_start;
+#else
+#endif /* RINGBUFFER_USECASE */
+
+#endif /* VIRTUAL_TARGET */
 
 /************************************************************
   ENUMS AND TYPEDEFS
@@ -61,8 +82,6 @@ typedef struct RingBuffer_tag
   Std_ErrorCode (*read) (void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
 } RingBuffer;
 
-
-
 /************************************************************
   EXTERN FUNCTIONS
 ************************************************************/
@@ -80,9 +99,5 @@ typedef struct RingBuffer_tag
   lot of sense without dynamic allocation. If we split up the memory pool to multiple RingBuffers, 
   then we will want to implement dynamic allocation within the MemoryPool
 */
-<<<<<<< HEAD
-extern Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize);
-=======
 extern Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize, RINGBUFFER_SIZE_TYPE numBufferSlots);
->>>>>>> c06be56 (trunk commit before refactor for mempool changes)
 #endif /* RINGBUFFER_H */
