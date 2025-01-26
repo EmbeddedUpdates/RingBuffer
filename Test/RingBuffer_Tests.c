@@ -188,19 +188,21 @@ void test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement(void)
   TEST_ASSERT_EQUAL(E_NOT_OK, retVal);
 }
 
-/* void test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement(void)
- {
-   RingBuffer rb; *//* rb is placed on the stack, will be automatically deleted after execution of this function */
-/*   Std_ErrorCode retVal = E_NOT_OK;
-   retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
-   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
-   uint8 arr1[4] = {0, 0, 0, 0};
+void test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement(void)
+{
+  TEST_IGNORE(); /* This test is ignored temporarily due to changes in the memory allocation methods */
+
+  RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
+  Std_ErrorCode retVal = E_NOT_OK;
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
+  uint8 arr1[4] = {0, 0, 0, 0};
   retVal = rb.write(&rb, arr0, 4);
 
   retVal = E_NOT_OK;
   retVal = rb.read(&rb, arr1, 2);
   TEST_ASSERT_EQUAL(E_NOT_OK, retVal);
-} */
+} 
 
 void test_RingBuffer_Read_ReturnsNotOk_NullPointerToData(void)
 {

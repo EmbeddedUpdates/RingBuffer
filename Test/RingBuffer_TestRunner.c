@@ -69,7 +69,7 @@ int main(void)
   RUN_TEST(test_RingBuffer_Read_ReturnsOk, 69);
   RUN_TEST(test_RingBuffer_Read_CorrectDataReturned, 70);
   RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement, 71);
-  /*RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement, 72);*/
+  RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement, 72);
   RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_NullPointerToData, 73);
   RUN_TEST(test_RingBuffer_Read_ReturnsNotOk_NoDataToRead, 74);
 

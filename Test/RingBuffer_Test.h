@@ -26,7 +26,7 @@ extern void test_RingBuffer_Write_ReturnsNotOk_NotEnoughSpace_Full(void);
 extern void test_RingBuffer_Read_ReturnsOk(void); 
 extern void test_RingBuffer_Read_CorrectDataReturned(void); 
 extern void test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement(void); 
-/* extern void test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement(void); */
+extern void test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement(void);
 extern void test_RingBuffer_Read_ReturnsNotOk_NullPointerToData(void); 
 extern void test_RingBuffer_Read_ReturnsNotOk_NoDataToRead(void);
 /* TODO: Consider a "readPartial" so which would not move the head pointer */
