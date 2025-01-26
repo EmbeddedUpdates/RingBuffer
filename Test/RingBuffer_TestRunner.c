@@ -25,6 +25,10 @@
 #include <stdlib.h>
 #include "RingBuffer.h"
 #include "RingBuffer_Test.h"
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
+#elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+#include "MemPool.h"
+#endif
 
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
@@ -43,15 +47,20 @@ void resetTest(void)
 int main(void)
 {
   UnityBegin("test/ProtoBuf.c");
-
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
   uint8 * mempool = aligned_alloc(RINGBUFFER_SIZE, RINGBUFFER_SIZE);
   ringbuffer_start = mempool;
   printf("Address of mempool: %p\n", (void*)RINGBUFFER_STARTADDR);
   printf("Length of mempool: %p\n", (void*)RINGBUFFER_SIZE);
+#elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+  uint8 * mempool = aligned_alloc(MEMPOOL_BLOCK_SIZE, MEMPOOL_SIZE);
+  mempool_start = mempool;
+  printf("Address of mempool: %p\n", (void*)MEMPOOL_STARTADDR);
+  printf("Length of mempool: %p\n", (void*)(MEMPOOL_BLOCK_SIZE*MEMPOOL_MAX_NUM_BLOCKS));
+#endif
 
   /* Tests for Create() */
   RUN_TEST(test_RingBuffer_Create_ReturnsOK, 54);
-  printf("%p\n", ringbuffer_start);
   RUN_TEST(test_RingBuffer_Create_AllocatedSpaceIsEmpty, 55);
   RUN_TEST(test_RingBuffer_Create_CorrectCapacityForElemSizeOne, 56);
   RUN_TEST(test_RingBuffer_Create_CorrectCapacityForElemSizeFour, 57);

@@ -12,6 +12,12 @@
 
 #pragma ab
 
+/* Global variables for testing */
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+uint8 * mempool_start;
+#endif
+
+
 void setUp(void)
 {
 }
@@ -42,8 +48,9 @@ void test_RingBuffer_Create_AllocatedSpaceIsEmpty(void)
   uint64 i;
   RingBuffer rb;
   Std_ErrorCode retVal = E_NOT_OK;
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
   ringbuffer_start[3] = 0xAB;
-
+#endif
   retVal = RingBuffer_Create(&rb, 1, RINGBUFFER_SIZE);
   (void) retVal; /* We do not care for the value of retVal. That is not the purpose of this test. */
   

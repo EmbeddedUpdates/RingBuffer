@@ -38,32 +38,32 @@
 #endif
 
 /************************************************************
+  INCLUDES
+************************************************************/
+/* Only dependency - to track std_responsecodes in c programming projects */
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+#include "MemPool.h"
+#endif
+/************************************************************
   DEFINES
 ************************************************************/
 /* A mempool is reserved for the RINGBUFFER, and is allocated through the linkerscript at compile time */
 #if defined( RP2040 )
-#define RINGBUFFER_MEMPOOL_STARTADDR __MEMPOOL_START
-#define RINGBUFFER_MEMPOOL_SIZE      __MEMPOOL_LENGTH
 #define RINGBUFFER_SIZE_TYPE         uint32
+#elif defined ( VIRTUAL_TARGET ) /* A mempool is allocated at runtime - for virtual test target */
+#define RINGBUFFER_SIZE_TYPE         uint64
 #endif
-/* A mempool is allocated at runtime - for virtual test target */
-#if defined ( VIRTUAL_TARGET )
 
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
   #define RINGBUFFER_STARTADDR (uint64) ringbuffer_start
   #define RINGBUFFER_SIZE      (uint64) 0x1000
-  #define RINGBUFFER_SIZE_TYPE         uint64
   extern uint8 * ringbuffer_start;
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
-  #define RINGBUFFER_SIZE_TYPE         uint64
-
-  #define RINGBUFFER_SIZE 0x1
-  #define RINGBUFFER_STARTADDR ringbuffer_start
-  extern uint8 * ringbuffer_start;
+  #define RINGBUFFER_SIZE      (uint64) 0x1000
 #else
 #endif /* RINGBUFFER_USECASE */
 
-#endif /* VIRTUAL_TARGET */
+#define MOD_ID_RINGBUFFER 0xF1
 
 /************************************************************
   ENUMS AND TYPEDEFS
@@ -76,6 +76,11 @@ typedef struct RingBuffer_tag
   RINGBUFFER_SIZE_TYPE count; /* current number of items in the ringbuffer */
   RINGBUFFER_SIZE_TYPE head; /* read pointer - "dirty" data that needs to be popped */
   RINGBUFFER_SIZE_TYPE tail; /* write pointer - "clean" data that has been processed and can be overwritten */
+  /* Depending on the usecase, we need to determine where data will be placed and how much data we can use. */
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
+#elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+  MemPool memPool;
+#endif
   /* A write or enqueue for adding data to the ringbuffer */
   Std_ErrorCode (*write) (void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
   /* A read ir dequeue for removing data from the ringbuffer */

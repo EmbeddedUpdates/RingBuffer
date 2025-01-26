@@ -41,6 +41,8 @@ uint8 * ringbuffer_start;
 /************************************************************
   LOCAL FUNCTIONS
 ************************************************************/
+
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
 static void RingBuffer_MemPool_ClearAll(void)
 {
   uint8 * addr;
@@ -51,6 +53,7 @@ static void RingBuffer_MemPool_ClearAll(void)
     *addr = 0;
   }
 }
+#endif
 
 /**
  * RingBuffer_MemPool_Allocate()
@@ -197,7 +200,13 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
     self->count = 0;
 
     /* All of mempool is allocated for one RingBuffer currently. Will change in the future. */
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
     self->buffer = (uint8 *)RINGBUFFER_STARTADDR;
+#elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+    retVal = MemPool_Create(&(self->memPool), MEMPOOL_STARTADDR, MEMPOOL_SIZE);
+    self->buffer = self->memPool.alloc(&(self->memPool), MEMPOOL_SIZE, MOD_ID_RINGBUFFER);
+#endif
+
     self->head = 0;
     self->tail = 0;
 
@@ -215,7 +224,9 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
   if(E_OK == retVal)
   {
     /* Clear all of the memory in the RingBuffer memory pool */
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
     RingBuffer_MemPool_ClearAll();
+#endif
   }
 
   return retVal;
