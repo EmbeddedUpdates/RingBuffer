@@ -190,7 +190,7 @@ void test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement(void)
 
 void test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement(void)
 {
-  TEST_IGNORE(); /* This test is ignored temporarily due to changes in the memory allocation methods */
+  TEST_IGNORE(); /* This test is ignored temporarily due to changes in the memory allocation methods - we may want to accept sizes smaller than elements for partial reads */
 
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
