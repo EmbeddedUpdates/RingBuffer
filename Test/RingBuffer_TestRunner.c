@@ -46,7 +46,7 @@ void resetTest(void)
 /*=======MAIN=====*/
 int main(void)
 {
-  UnityBegin("test/ProtoBuf.c");
+  UnityBegin("test/RingBuffer.c");
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
   uint8 * mempool = aligned_alloc(RINGBUFFER_SIZE, RINGBUFFER_SIZE);
   ringbuffer_start = mempool;

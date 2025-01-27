@@ -32,6 +32,16 @@ void tearDown(void)
 }
 
 /* HELPER FUNCTIONS */
+void testHelper_PrintCharArray(uint8 * arr, uint8 numElements)
+{
+  printf("array: \n");
+  uint8 i;
+  for(i = 0; i < numElements; i++)
+  {
+    printf(" 0x%02X |", arr[i]);
+  }
+  printf("\n");
+}
 
 /* TESTS */
 /* Calls ...Create() and returns Ok */
@@ -197,8 +207,6 @@ void test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement(void)
 
 void test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement(void)
 {
-  TEST_IGNORE(); /* This test is ignored temporarily due to changes in the memory allocation methods - we may want to accept sizes smaller than elements for partial reads */
-
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
   retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
@@ -266,7 +274,7 @@ void test_RingBuffer_FillAndReadAndWriteAgain_OK(void)
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
 
-  retVal = RingBuffer_Create(&rb, RINGBUFFER_SIZE/2, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
   uint8 arr0[4] = {0, 1, 2, 3};
   uint8 arr1[4] = {4, 5, 6, 7};
 
@@ -282,7 +290,7 @@ void test_RingBuffer_FillAndReadAndWriteAgain_CorrectData(void)
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
 
-  retVal = RingBuffer_Create(&rb, RINGBUFFER_SIZE/2, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
   uint8 arr0[4] = {0, 1, 2, 3};
   uint8 arr1[4] = {4, 5, 6, 7};
 
@@ -290,6 +298,7 @@ void test_RingBuffer_FillAndReadAndWriteAgain_CorrectData(void)
   retVal = rb.write(&rb, arr1, 4);
   retVal = rb.read(&rb, arr1, 4); /* should now have the content of arr0 */
   retVal = rb.write(&rb, arr0, 4);
+
   (void) retVal;
   TEST_ASSERT_EQUAL_CHAR_ARRAY(arr0, arr1, 4);
 }

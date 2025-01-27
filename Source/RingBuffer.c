@@ -123,7 +123,7 @@ static Std_ErrorCode RingBuffer_Read(void * self, uint8 * dataBuffer, RINGBUFFER
   RINGBUFFER_SIZE_TYPE i; /* idx for access to ringbuffer entry */
 
   /* Check input parameters */
-  if( (NULL == SELF) || (size > SELF->elementSize)  || (NULL == dataBuffer) )
+  if( (NULL == SELF) || (size != SELF->elementSize)  || (NULL == dataBuffer) )
   {
     retVal = E_NOT_OK;
   }
