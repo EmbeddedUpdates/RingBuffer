@@ -98,11 +98,22 @@ typedef struct RingBuffer_tag
 /************************************************************
   GLOBAL FUNCTIONS
 ************************************************************/
-/*
-  Create and Destroy are not parts of the RingBuffer object, as we are not relying on dynamic 
-  allocation. We COULD put create and destory in the ringbuffer object, but it doesn't make a whole 
-  lot of sense without dynamic allocation. If we split up the memory pool to multiple RingBuffers, 
-  then we will want to implement dynamic allocation within the MemoryPool
-*/
+/**
+ * RingBuffer_Create
+ * Create and Destroy are not parts of the RingBuffer object, as we are not relying on dynamic 
+ * allocation. We COULD put create and destory in the ringbuffer object, but it doesn't make a whole 
+ * lot of sense without dynamic allocation. If we split up the memory pool to multiple RingBuffers, 
+ * then we will want to implement dynamic allocation within the MemoryPool
+ * 
+ * Returns a pointer to a 'new' RingBuffer structure. We do not utilize the heap, since we want this to
+ * be memory safe - so we will not utilize Malloc either. We will statically allocate the memory space at link time,
+ * and dynamically assign the data within that allocated region during runtime.
+ * 
+ * @param self: ringBuffer to store the new data in.
+ * @param elementSize: size of the elements that will be placed in the ringbuffer.
+ * @param numBufferSlots: number of slots that the buffer must hold at one time.
+ * 
+ * @return Std_ErrorCode
+ */
 extern Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize, RINGBUFFER_SIZE_TYPE numBufferSlots);
 #endif /* RINGBUFFER_H */

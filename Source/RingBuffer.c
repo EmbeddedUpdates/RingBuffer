@@ -36,13 +36,28 @@
 /************************************************************
   LOCAL VARIABLES
 ************************************************************/
+/** 
+ * In the case where the RingBuffer manually handles its own memory space, we need to use this pointer.
+ *  NB: Consider defining this variable in this scope to a linkage symbol provided by the linkerscript. 
+ *      This should be reconsidered before moving RingBuffer_Independent to an embedded system.
+ */
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
 uint8 * ringbuffer_start;
+#elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+#else
+#endif /* RINGBUFFER_USECASE */
 
 /************************************************************
   LOCAL FUNCTIONS
 ************************************************************/
 
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
+/**
+ * RingBuffer_MemPool_ClearAll()
+ * Local helper function that will clear the Ringbuffer's memory pool in the case where it is handled by the Ringbuffer directly.
+ * In RINGBUFFER_USECASE_MEMPOOL, the MEMPOOL component is used instead.
+ * DEBT: We should rename this function, as the mempool concept has grown beyond what this function originally intended.
+ */
 static void RingBuffer_MemPool_ClearAll(void)
 {
   uint8 * addr;
@@ -56,32 +71,16 @@ static void RingBuffer_MemPool_ClearAll(void)
 #endif
 
 /**
- * RingBuffer_MemPool_Allocate()
- * 
- * Reserve and allocate space from the memorypool that can fit the elementSize*numBufferslots in bytes.
- * 
- * @param rb (in/out): ringbuffer that will have it's buffer assigned by this function.
- * @param elementSize (in): size in bytes of the elements that will be stored in the RingBuffer/Mempool
- * @param numBufferSlots (in): number of elements that will be stored in the RingBuffer
- * 
- */
-/*
-static Std_ErrorCode RingBuffer_MemPool_Allocate(RingBuffer * rb, RINGBUFFER_SIZE_TYPE elementSize, RINGBUFFER_SIZE_TYPE numBufferSlots)
-{
-  (void) rb;
-  (void) elementSize;
-  (void) numBufferSlots;
-  Std_ErrorCode retVal = E_OK;
-  return retVal;
-}
-*/
-
-/**
  * RingBuffer_Write()
  * Adds the given data to the given RingBuffer. If the size is too big for the RingBuffer slots, then we will return NOTOK.
  * Static: because it must be called through the RingBuffer itself
- *  - NB: RB_OPT_001
+ * @param self: pointer to RingBuffer structure that the data will be written to.
+ * @param dataBuffer: pointer to the databuffer that should be stored in the RingBuffer. 
+ *  - NB: RB_OPT_003
+ * @param size: amount of bytes that must be copied from dataBuffer to the RingBuffer.
  * 
+ * @return Std_ErrorCode - E_OK if the copy is successful. E_NOT_OK if the copy is not successful.
+ *  - NB: RB_OPT_001
  */
 static Std_ErrorCode RingBuffer_Write(void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size)
 {
@@ -89,12 +88,7 @@ static Std_ErrorCode RingBuffer_Write(void * self, uint8 * dataBuffer, RINGBUFFE
   RINGBUFFER_SIZE_TYPE i; /* idx for access to ringbuffer entry */
 
   /* Check input parameters */
-  if( (NULL == SELF) || (size > SELF->elementSize)  || (NULL == dataBuffer) )
-  {
-    retVal = E_NOT_OK;
-  }
-
-  if(SELF->capacity == SELF->count)
+  if( (NULL == SELF) || (size > SELF->elementSize)  || (NULL == dataBuffer) || (SELF->capacity == SELF->count) )
   {
     retVal = E_NOT_OK;
   }
@@ -115,6 +109,14 @@ static Std_ErrorCode RingBuffer_Write(void * self, uint8 * dataBuffer, RINGBUFFE
 }
 
 /**
+ * RingBuffer_Read()
+ * Pops the next data off of the Ringbuffer and stores it into the databuffer given. Decrements the count of data in the RingBuffer, and move the head pointer.
+ *
+ * @param self: pointer to the RingBuffer that is being used. Data will come from the Ringbuffer.
+ * @param databuffer: pointer to a buffer that we will store the data in and give it to the caller
+ * @param size: number of bytes that will be read from the RingBuffer, should match the elementSize.
+ * 
+ * @return Std_ErrorCode: E_OK if the read was performed and the databuffer is populated, E_NOT_OK if the read is not performed.
  * NB: RB_OPT_001
  */
 static Std_ErrorCode RingBuffer_Read(void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size)
@@ -123,13 +125,7 @@ static Std_ErrorCode RingBuffer_Read(void * self, uint8 * dataBuffer, RINGBUFFER
   RINGBUFFER_SIZE_TYPE i; /* idx for access to ringbuffer entry */
 
   /* Check input parameters */
-  if( (NULL == SELF) || (size != SELF->elementSize)  || (NULL == dataBuffer) )
-  {
-    retVal = E_NOT_OK;
-  }
-
-  /* in the case where the RB is empty, we should reply NOT_OK */
-  if(0 == SELF->count)
+  if( (NULL == SELF) || (size != SELF->elementSize)  || (NULL == dataBuffer) || (0 == SELF->count) )
   {
     retVal = E_NOT_OK;
   }
@@ -165,6 +161,7 @@ static Std_ErrorCode RingBuffer_Read(void * self, uint8 * dataBuffer, RINGBUFFER
  * @param elementSize: size of the elements that will be placed in the ringbuffer.
  * @param numBufferSlots: number of slots that the buffer must hold at one time.
  * 
+ * @return Std_ErrorCode, E_OK for a successful creation, E_NOT_OK for error.
  */
 Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE elementSize, RINGBUFFER_SIZE_TYPE numBufferSlots)
 {
@@ -249,3 +246,19 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
  *      #define SELF ((RingBuffer *)(self))
  *      This is defined in this file only. No includes are permitted after this line is defined at the top of this file. 
  */
+
+/**
+ * RB_OPT_003
+ * dataBuffer and other pointers are derefenced with minimal checks.
+ *      For example, we only check that the pointer is not null, but what if the address is still invalid and may cause an exception?
+ *      We haven't implemented any checks anywhere in here for this at all - is it overkill to check that the address is 'reasonable'?
+ *      We could consider implementing a platform specific check, implemented by the BRS module that include a more robust check.
+ *      This would help with some edge case platforms where 0x00000000 is a valid memory address (i.e. interrupt vector table), and maybe for debugging
+ *      we would want to read that data back.
+ * 
+ *      Counterpoint - we could implement this more robust check only for very specific checks, like if we want to debug an exceptioon and report it over serial/uart.
+ *      Counter-Counterpoint - if we implement such a check, we can easily implement a user-register read like a debugger, so that a request can be made for addr+length
+ *          we can then verify the user input to make sure that it is reasonable. In this case, that check could be performed by the portion of the program verifying the
+ *          user's input.
+ */
+
