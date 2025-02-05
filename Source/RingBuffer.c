@@ -69,7 +69,6 @@ static void RingBuffer_MemPool_ClearAll(void)
   }
 }
 #endif
-
 /**
  * RingBuffer_Write()
  * Adds the given data to the given RingBuffer. If the size is too big for the RingBuffer slots, then we will return NOTOK.
@@ -92,7 +91,6 @@ static Std_ErrorCode RingBuffer_Write(void * self, uint8 * dataBuffer, RINGBUFFE
   {
     retVal = E_NOT_OK;
   }
-  
   /* if all checks were succesfull, we can queue the data in the ringbuffer */
   if(E_OK == retVal)
   {
@@ -200,9 +198,13 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
     self->buffer = (uint8 *)RINGBUFFER_STARTADDR;
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
-    retVal = MemPool_Create(&(self->memPool), MEMPOOL_STARTADDR, MEMPOOL_SIZE);
-    self->buffer = self->memPool.alloc(&(self->memPool), MEMPOOL_SIZE, MOD_ID_RINGBUFFER);
+    retVal = MemPool_GetGlobalMemPool(&self->memPool);
+    self->buffer = self->memPool->alloc(self->memPool, elementSize * numBufferSlots, MOD_ID_RINGBUFFER);
 #endif
+    if(NULL == self->buffer)
+    {
+      retVal = E_NOT_OK;
+    }
 
     self->head = 0;
     self->tail = 0;

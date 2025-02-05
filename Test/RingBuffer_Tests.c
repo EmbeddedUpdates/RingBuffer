@@ -15,6 +15,9 @@
 /* Global variables for testing */
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
 uint8 * mempool_start;
+extern MemPool memPools[1];
+MemPool zeroMp = {0};
+extern uint8 memPoolsIdx;
 #endif
 
 
@@ -28,7 +31,14 @@ void setUp(void)
 */
 void tearDown(void)
 {
-
+#if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
+  memPools[0].poolStartAddr = 0;
+  memPools[0].poolSize = 0;
+  memPools[0].blockSize = 0;
+  memPools[0].numTotalBlocks = 0;
+  memPools[0].numFreeBlocks = 0;
+  memPoolsIdx = 0xFF;
+#endif
 }
 
 /* HELPER FUNCTIONS */
@@ -62,8 +72,8 @@ void test_RingBuffer_Create_AllocatedSpaceIsEmpty(void)
   ringbuffer_start[3] = 0xAB;
 #endif
   retVal = RingBuffer_Create(&rb, 1, RINGBUFFER_SIZE);
+  printf("rb.buffer: %p\n", (rb.buffer));
   (void) retVal; /* We do not care for the value of retVal. That is not the purpose of this test. */
-  
   for(i = 0; i < RINGBUFFER_SIZE; i++)
   {
     TEST_ASSERT_EQUAL(0, rb.buffer[i]);
@@ -119,9 +129,9 @@ void test_RingBuffer_Write_ReturnsOk(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
-  retVal = rb.write(&rb, arr0, 4);
+  retVal = rb.write(&rb, &arr0[0], 4);
   TEST_ASSERT_EQUAL(E_OK, retVal);
 }
 
@@ -129,7 +139,8 @@ void test_RingBuffer_Write_ReturnsNotOk_WrongSize(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 2, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 2, RINGBUFFER_SIZE/2);
+  printf("rb.buffer %p\n", rb.buffer);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
   retVal = rb.write(&rb, arr0, 4);
   TEST_ASSERT_EQUAL(E_NOT_OK, retVal);
@@ -140,7 +151,7 @@ void test_RingBuffer_Write_ReturnsNotOk_NullPointerToData(void)
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
   uint8 * arr0 = NULL;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   retVal = rb.write(&rb, arr0, 4);
   TEST_ASSERT_EQUAL(E_NOT_OK, retVal);
 }
@@ -149,7 +160,7 @@ void test_RingBuffer_Write_ReturnsNotOk_NotEnoughSpace_Full(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, RINGBUFFER_SIZE/2, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, RINGBUFFER_SIZE/2, 2);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
   uint8 arr1[4] = {0xDE, 0xAD, 0xBE, 0xEF};
   uint8 arr2[4] = {0x00, 0x11, 0x22, 0x33};
@@ -166,7 +177,7 @@ void test_RingBuffer_Read_ReturnsOk(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
   uint8 arr1[4] = {0};
   retVal = rb.write(&rb, arr0, 4);
@@ -180,7 +191,7 @@ void test_RingBuffer_Read_CorrectDataReturned(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
   uint8 arr1[4] = {0};
   retVal = rb.write(&rb, arr0, 4);
@@ -195,7 +206,7 @@ void test_RingBuffer_Read_ReturnsNotOk_SizeBiggerThanElement(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
   uint8 arr1[4] = {0, 0, 0, 0};
   retVal = rb.write(&rb, arr0, 4);
@@ -209,7 +220,7 @@ void test_RingBuffer_Read_ReturnsNotOk_SizeSmallerThanElement(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
   uint8 arr1[4] = {0, 0, 0, 0};
   retVal = rb.write(&rb, arr0, 4);
@@ -223,7 +234,7 @@ void test_RingBuffer_Read_ReturnsNotOk_NullPointerToData(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0xFA, 0xCE, 0xBE, 0xEF};
   uint8 *arr1 = NULL;
   retVal = rb.write(&rb, arr0, 4);
@@ -237,7 +248,7 @@ void test_RingBuffer_Read_ReturnsNotOk_NoDataToRead(void)
 {
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr1[4] = {0};
 
   retVal = E_NOT_OK;
@@ -251,7 +262,7 @@ void test_RingBuffer_ReadAndWriteLotsOfData(void)
   Std_ErrorCode retVal = E_NOT_OK;
   uint32 i = 0;
 
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0};
   uint8 arr1[4] = {0};
 
@@ -274,7 +285,7 @@ void test_RingBuffer_FillAndReadAndWriteAgain_OK(void)
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
 
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0, 1, 2, 3};
   uint8 arr1[4] = {4, 5, 6, 7};
 
@@ -290,7 +301,7 @@ void test_RingBuffer_FillAndReadAndWriteAgain_CorrectData(void)
   RingBuffer rb; /* rb is placed on the stack, will be automatically deleted after execution of this function */
   Std_ErrorCode retVal = E_NOT_OK;
 
-  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE);
+  retVal = RingBuffer_Create(&rb, 4, RINGBUFFER_SIZE/4);
   uint8 arr0[4] = {0, 1, 2, 3};
   uint8 arr1[4] = {4, 5, 6, 7};
 

@@ -79,7 +79,7 @@ typedef struct RingBuffer_tag
   /* Depending on the usecase, we need to determine where data will be placed and how much data we can use. */
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
-  MemPool memPool;
+  MemPool * memPool;
 #endif
   /* A write or enqueue for adding data to the ringbuffer */
   Std_ErrorCode (*write) (void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
