@@ -42,7 +42,7 @@
  *      This should be reconsidered before moving RingBuffer_Independent to an embedded system.
  */
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
-uint8 * ringbuffer_start;
+int8 * ringbuffer_start;
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
 #else
 #endif /* RINGBUFFER_USECASE */
@@ -81,7 +81,7 @@ static void RingBuffer_MemPool_ClearAll(void)
  * @return Std_ErrorCode - E_OK if the copy is successful. E_NOT_OK if the copy is not successful.
  *  - NB: RB_OPT_001
  */
-static Std_ErrorCode RingBuffer_Write(void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size)
+static Std_ErrorCode RingBuffer_Write(void * self, int8 * dataBuffer, RINGBUFFER_SIZE_TYPE size)
 {
   Std_ErrorCode retVal = E_OK;
   RINGBUFFER_SIZE_TYPE i; /* idx for access to ringbuffer entry */
@@ -117,7 +117,7 @@ static Std_ErrorCode RingBuffer_Write(void * self, uint8 * dataBuffer, RINGBUFFE
  * @return Std_ErrorCode: E_OK if the read was performed and the databuffer is populated, E_NOT_OK if the read is not performed.
  * NB: RB_OPT_001
  */
-static Std_ErrorCode RingBuffer_Read(void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size)
+static Std_ErrorCode RingBuffer_Read(void * self, int8 * dataBuffer, RINGBUFFER_SIZE_TYPE size)
 {
   Std_ErrorCode retVal = E_OK;
   RINGBUFFER_SIZE_TYPE i; /* idx for access to ringbuffer entry */
@@ -196,7 +196,7 @@ Std_ErrorCode RingBuffer_Create( RingBuffer * self, RINGBUFFER_SIZE_TYPE element
 
     /* All of mempool is allocated for one RingBuffer currently. Will change in the future. */
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
-    self->buffer = (uint8 *)RINGBUFFER_STARTADDR;
+    self->buffer = (int8 *)RINGBUFFER_STARTADDR;
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
     retVal = MemPool_GetGlobalMemPool(&self->memPool);
     self->buffer = self->memPool->alloc(self->memPool, elementSize * numBufferSlots, MOD_ID_RINGBUFFER);

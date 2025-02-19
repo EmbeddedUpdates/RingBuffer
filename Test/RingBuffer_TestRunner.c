@@ -48,12 +48,12 @@ int main(void)
 {
   UnityBegin("test/RingBuffer.c");
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
-  uint8 * mempool = aligned_alloc(RINGBUFFER_SIZE, RINGBUFFER_SIZE);
+  int8 * mempool = aligned_alloc(RINGBUFFER_SIZE, RINGBUFFER_SIZE);
   ringbuffer_start = mempool;
   printf("Address of mempool: %p\n", (void*)RINGBUFFER_STARTADDR);
   printf("Length of mempool: %p\n", (void*)RINGBUFFER_SIZE);
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
-  uint8 * mempool = aligned_alloc(MEMPOOL_BLOCK_SIZE, MEMPOOL_SIZE);
+  int8 * mempool = aligned_alloc(MEMPOOL_BLOCK_SIZE, MEMPOOL_SIZE);
   mempool_start = mempool;
   printf("Address of mempool: %p\n", (void*)MEMPOOL_STARTADDR);
   printf("Length of mempool: %p\n", (void*)(MEMPOOL_BLOCK_SIZE*MEMPOOL_MAX_NUM_BLOCKS));

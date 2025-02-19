@@ -29,6 +29,7 @@
 #define RINGBUFFER_USECASE_INDEPENDENT 0
 #define RINGBUFFER_USECASE_MEMPOOL 1
 
+#if defined( RINGBUFFER_USECASE )
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
  /* intentionally left blank */
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
@@ -36,6 +37,10 @@
 #else 
   #error "Undefined Usecase - at least one of the memory allocation usecases must be configured!"
 #endif
+#else
+  #define RINGBUFFER_USECASE RINGBUFFER_USECASE_MEMPOOL
+#endif /* RINGBUFFER_USECASE */
+
 
 /************************************************************
   INCLUDES
@@ -57,7 +62,7 @@
 #if( RINGBUFFER_USECASE == RINGBUFFER_USECASE_INDEPENDENT )
   #define RINGBUFFER_STARTADDR (uint64) ringbuffer_start
   #define RINGBUFFER_SIZE      (uint64) 0x1000
-  extern uint8 * ringbuffer_start;
+  extern int8 * ringbuffer_start;
 #elif( RINGBUFFER_USECASE == RINGBUFFER_USECASE_MEMPOOL )
   #define RINGBUFFER_SIZE      (uint64) 0x1000
 #else
@@ -70,7 +75,7 @@
 ************************************************************/
 typedef struct RingBuffer_tag
 {
-  uint8 * buffer;
+  int8 * buffer;
   RINGBUFFER_SIZE_TYPE elementSize; /* size of an element in the ringbuffer */
   RINGBUFFER_SIZE_TYPE capacity; /* maximum number of items in the ringbuffer */
   RINGBUFFER_SIZE_TYPE count; /* current number of items in the ringbuffer */
@@ -82,9 +87,9 @@ typedef struct RingBuffer_tag
   MemPool * memPool;
 #endif
   /* A write or enqueue for adding data to the ringbuffer */
-  Std_ErrorCode (*write) (void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
+  Std_ErrorCode (*write) (void * self, int8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
   /* A read ir dequeue for removing data from the ringbuffer */
-  Std_ErrorCode (*read) (void * self, uint8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
+  Std_ErrorCode (*read) (void * self, int8 * dataBuffer, RINGBUFFER_SIZE_TYPE size);
 } RingBuffer;
 
 /************************************************************
